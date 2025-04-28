@@ -2,28 +2,24 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
+const restaurantRoutes = require('./routes/restaurantRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 dotenv.config(); // Cargar variables de entorno
+
 connectDB();     // Conectar a MongoDB
 
 const app = express();
-
-dotenv.config();
 app.use(express.json());
-
-// Conexión a MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log('MongoDB conectado'))
-  .catch(err => console.log(err));
 
 // Rutas
 app.get('/', (req, res) => {
   res.send('API funcionando');
 });
 
-// Importar rutas aquí (después)
+app.use('/api/restaurants', restaurantRoutes);
+app.use('/api/users', userRoutes);
+
 
 // Puerto
 const PORT = process.env.PORT || 5000;
