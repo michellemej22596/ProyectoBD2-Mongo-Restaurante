@@ -1,0 +1,8 @@
+streamlit
+pymongo
+
+# Así cuando quieras instalar todo, solo haces:
+## pip install -r requirements.txt
+
+# Desde la carpeta fronted correr
+## streamlit run app.py
