@@ -1,22 +1,22 @@
-const Restaurant = require('../models/Restaurant');
+const Restaurantes = require('../models/Restaurantes');
 
-// Crear un nuevo restaurante
-exports.createRestaurant = async (req, res) => {
-  const { name, address, phone, category } = req.body;
+// Obtener todos los restaurantes
+exports.getRestaurants = async (req, res) => {
   try {
-    const newRestaurant = new Restaurant({ name, address, phone, category });
-    await newRestaurant.save();
-    res.status(201).json(newRestaurant);
+    const restaurants = await Restaurantes.find().populate('menu.item_id', 'nombre precio');
+    res.status(200).json(restaurants);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Obtener todos los restaurantes
-exports.getRestaurants = async (req, res) => {
+// Crear un nuevo restaurante
+exports.createRestaurant = async (req, res) => {
+  const { nombre, direccion, telefono, categoria, menu } = req.body;
   try {
-    const restaurants = await Restaurant.find();
-    res.status(200).json(restaurants);
+    const newRestaurant = new Restaurantes({ nombre, direccion, telefono, categoria, menu });
+    await newRestaurant.save();
+    res.status(201).json(newRestaurant);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
