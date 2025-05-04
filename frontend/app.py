@@ -1,37 +1,17 @@
-# app.py
 import streamlit as st
-from mongo_connection import get_database
+from pages import restaurantes, menu, pedidos, reseñas, reportes
 
-# Configuración de la página
-st.set_page_config(page_title="Restaurantes App", layout="wide")
+st.title("Gestión de Restaurantes")
 
-# Título principal
-st.title("🍽️ Sistema de Gestión de Restaurantes")
+page = st.sidebar.selectbox("Selecciona una sección", ["Restaurantes", "Menú", "Pedidos", "Reseñas", "Reportes"])
 
-# Menú lateral
-page = st.sidebar.selectbox(
-    "Selecciona una sección",
-    ("Inicio", "Restaurantes", "Menú", "Pedidos", "Reseñas", "Reportes")
-)
-
-# Cargar la base de datos
-db = get_database()
-
-# Importar páginas
-if page == "Inicio":
-    st.write("¡Bienvenido a la aplicación de gestión de restaurantes! 🍔🍕🥗")
-elif page == "Restaurantes":
-    from pages.restaurantes import main
-    main(db)
+if page == "Restaurantes":
+    restaurantes.show_restaurantes()
 elif page == "Menú":
-    from pages.menu import main
-    main(db)
+    menu.show_menu()
 elif page == "Pedidos":
-    from pages.pedidos import main
-    main(db)
+    pedidos.show_pedidos()
 elif page == "Reseñas":
-    from pages.reseñas import main
-    main(db)
+    reseñas.show_reseñas()
 elif page == "Reportes":
-    from pages.reportes import main
-    main(db)
+    reportes.show_reportes()
