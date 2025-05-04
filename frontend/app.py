@@ -1,17 +1,28 @@
 import streamlit as st
-from pages import restaurantes, menu, pedidos, reseñas, reportes
 
 st.title("Gestión de Restaurantes")
 
-page = st.sidebar.selectbox("Selecciona una sección", ["Restaurantes", "Menú", "Pedidos", "Reseñas", "Reportes"])
+#Navegación entre páginas
+PAGES = {
+    "Restaurantes": "restaurantes",
+    "Menú": "menu",
+    "Pedidos": "pedidos",
+    "Reseñas": "review",
+    "Reportes": "reportes",
+}
 
+page = st.sidebar.radio("Selecciona una sección", options=list(PAGES.keys()))
+st.write(f"## {page}")
+# Cargar el script de la página correspondiente
 if page == "Restaurantes":
-    restaurantes.show_restaurantes()
+    from pages.restaurantes import app
 elif page == "Menú":
-    menu.show_menu()
+    from pages.menu import app
 elif page == "Pedidos":
-    pedidos.show_pedidos()
+    from pages.pedidos import app
 elif page == "Reseñas":
-    reseñas.show_reseñas()
+    from pages.review import app
 elif page == "Reportes":
-    reportes.show_reportes()
+    from pages.reportes import app
+
+app()

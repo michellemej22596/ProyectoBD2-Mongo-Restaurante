@@ -1,24 +1,19 @@
-import plotly.express as px
-from mongo_connection import get_db
-import pandas as pd
 import streamlit as st
+from mongo_connection import connect_to_mongo
 
-def show_reportes():
-    db = get_db()
+def app():
+    db = connect_to_mongo()
 
-    # Ejemplo de reporte de ventas por restaurante
-    ventas = db.Ordenes.aggregate([
-        {"$unwind": "$items"},
-        {"$group": {
-            "_id": "$restaurante_id",
-            "total_ventas": {"$sum": {"$multiply": ["$items.precio", "$items.cantidad"]}}
-        }},
-        {"$sort": {"total_ventas": -1}}
-    ])
+    # Generar reporte de pedidos
+    st.write("### Reporte de Pedidos por Restaurante")
+    restaurante_nombre = st.selectbox("Selecciona Restaurante", [r['nombre'] for r in db.restaurantes.find()])
+    pedidos = db.pedidos.find({"restaurante": restaurante_nombre})
 
-    ventas = list(ventas)
-    df = pd.DataFrame(ventas)
+    total_pedidos = 0
+    total_ingresos = 0
+    for pedido in pedidos:
+        total_pedidos += 1
+        total_ingresos += pedido['total']
 
-    # Crear gráfico
-    fig = px.bar(df, x='_id', y='total_ventas', title="Total de ventas por restaurante")
-    st.plotly_chart(fig)
+    st.write(f"Total de pedidos: {total_pedidos}")
+    st.write(f"Ingresos totales: ${total_ingresos}")

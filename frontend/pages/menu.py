@@ -1,17 +1,22 @@
+# pages/menu.py
 import streamlit as st
-from mongo_connection import get_db
+from mongo_connection import connect_to_mongo
 
-def show_menu():
-    db = get_db()
+def app():
+    db = connect_to_mongo()
 
-    # Obtener lista de restaurantes
-    restaurantes = db.Restaurantes.find()
-    restaurante_opciones = [r["nombre"] for r in restaurantes]
-
-    # Selección del restaurante
-    selected_restaurante = st.selectbox("Selecciona un restaurante", restaurante_opciones)
-
-    # Filtrar los pedidos de ese restaurante
-    pedidos = db.Ordenes.find({"restaurante_nombre": selected_restaurante})
-    for pedido in pedidos:
-        st.write(f"Pedido: {pedido['_id']}, Total: {pedido['total']}, Estado: {pedido['estado']}")
+    # Mostrar lista de menús
+    restaurante_nombre = st.selectbox("Selecciona el Restaurante", [r['nombre'] for r in db.restaurantes.find()])
+    menu = db.menu.find({"restaurante": restaurante_nombre})
+    
+    st.write(f"### Menú de {restaurante_nombre}")
+    for platillo in menu:
+        st.write(f"- {platillo['nombre']} - ${platillo['precio']}")
+    
+    # Formulario para agregar un nuevo platillo
+    st.write("### Agregar Nuevo Platillo")
+    platillo_nombre = st.text_input("Nombre del Platillo")
+    precio = st.number_input("Precio", min_value=0.0, step=0.01)
+    if st.button("Agregar Platillo"):
+        db.menu.insert_one({"restaurante": restaurante_nombre, "nombre": platillo_nombre, "precio": precio})
+        st.success(f"Platillo '{platillo_nombre}' agregado correctamente!")
