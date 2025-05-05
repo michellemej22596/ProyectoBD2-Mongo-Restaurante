@@ -1,9 +1,8 @@
-# pages/menu.py
 import streamlit as st
-from mongo_connection import connect_to_mongo
+from mongo_connection import get_db
 
 def app():
-    db = connect_to_mongo()
+    db = get_db()
 
     # Mostrar lista de menús
     restaurante_nombre = st.selectbox("Selecciona el Restaurante", [r['nombre'] for r in db.restaurantes.find()])

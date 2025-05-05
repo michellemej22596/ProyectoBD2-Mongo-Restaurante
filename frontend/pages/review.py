@@ -1,8 +1,8 @@
 import streamlit as st
-from mongo_connection import connect_to_mongo
+from mongo_connection import get_db
 
 def app():
-    db = connect_to_mongo()
+    db = get_db()
 
     # Mostrar reseñas
     restaurante_nombre = st.selectbox("Selecciona Restaurante", [r['nombre'] for r in db.restaurantes.find()])
