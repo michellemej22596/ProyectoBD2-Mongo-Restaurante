@@ -1,26 +1,45 @@
-# app/models/user.py
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field, validator
 from bson import ObjectId
 from typing import Optional
+from pydantic.json import ENCODERS_BY_TYPE
 
-# Modelo para la validación de datos (Pydantic)
+# Add ObjectId to Pydantic's JSON encoders
+ENCODERS_BY_TYPE[ObjectId] = str
+
+class PyObjectId(ObjectId):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        if not ObjectId.is_valid(v):
+            raise ValueError("Invalid ObjectId")
+        return ObjectId(v)
+
+    @classmethod
+    def __modify_schema__(cls, field_schema):
+        field_schema.update(type="string")
+
 class UserBase(BaseModel):
-    nombre: str
+    nombre: str = Field(..., min_length=1, max_length=50)
     email: EmailStr
-    telefono: str
-    direccion: str
+    telefono: str = Field(..., min_length=8, max_length=15)
+    direccion: str = Field(..., min_length=5, max_length=100)
 
-# Para interactuar con MongoDB, vamos a usar ObjectId
 class UserInDB(UserBase):
-    id: ObjectId
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
 
     class Config:
-        orm_mode = True
+        allow_population_by_field_name = True
+        json_encoders = {ObjectId: str}
+        arbitrary_types_allowed = True
 
-# Modelo para recibir datos al crear un usuario
 class UserCreate(UserBase):
     pass
 
-# Modelo para responder con datos de usuario
 class UserResponse(UserBase):
-    id: str
+    id: str = Field(..., alias="_id")
+
+    class Config:
+        allow_population_by_field_name = True

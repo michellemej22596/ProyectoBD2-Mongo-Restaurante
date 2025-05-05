@@ -1,45 +1,70 @@
-# app/controllers/user_controller.py
-from fastapi import APIRouter, HTTPException
-from app.models.user import UserCreate, UserResponse
+from fastapi import APIRouter, HTTPException, status
+from app.models.user import UserCreate, UserResponse, PyObjectId
 from app.config import database
 from bson import ObjectId
 
-router = APIRouter()
+router = APIRouter(prefix="/api", tags=["users"])
 
-# Ruta para obtener todos los usuarios
 @router.get("/usuarios", response_model=list[UserResponse])
 async def get_usuarios():
-    usuarios = await database["usuarios"].find().to_list(100)  # Limita a los primeros 100
-    return usuarios
+    usuarios = await database["usuarios"].find().to_list(100)
+    return [UserResponse(**user) for user in usuarios]
 
-# Ruta para obtener un usuario por ID
-@router.get("/usuario/{user_id}", response_model=UserResponse)
+@router.get("/usuarios/{user_id}", response_model=UserResponse)
 async def get_usuario(user_id: str):
-    usuario = await database["usuarios"].find_one({"_id": ObjectId(user_id)})
-    if usuario is None:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    return usuario
+    try:
+        usuario = await database["usuarios"].find_one({"_id": ObjectId(user_id)})
+        if not usuario:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado"
+            )
+        return UserResponse(**usuario)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ID inválido"
+        )
 
-# Ruta para crear un nuevo usuario
-@router.post("/usuario", response_model=UserResponse)
+@router.post("/usuarios", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_usuario(user: UserCreate):
     user_dict = user.dict()
     result = await database["usuarios"].insert_one(user_dict)
-    user_dict["_id"] = result.inserted_id
-    return user_dict
+    new_user = await database["usuarios"].find_one({"_id": result.inserted_id})
+    return UserResponse(**new_user)
 
-# Ruta para actualizar un usuario
-@router.put("/usuario/{user_id}", response_model=UserResponse)
+@router.put("/usuarios/{user_id}", response_model=UserResponse)
 async def update_usuario(user_id: str, user: UserCreate):
-    user_dict = user.dict()
-    result = await database["usuarios"].update_one({"_id": ObjectId(user_id)}, {"$set": user_dict})
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    return {**user_dict, "_id": user_id}
+    try:
+        user_dict = user.dict()
+        result = await database["usuarios"].update_one(
+            {"_id": ObjectId(user_id)},
+            {"$set": user_dict}
+        )
+        if result.matched_count == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado"
+            )
+        updated_user = await database["usuarios"].find_one({"_id": ObjectId(user_id)})
+        return UserResponse(**updated_user)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ID inválido"
+        )
 
-# Ruta para eliminar un usuario
-@router.delete("/usuario/{user_id}", status_code=204)
+@router.delete("/usuarios/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_usuario(user_id: str):
-    result = await database["usuarios"].delete_one({"_id": ObjectId(user_id)})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    try:
+        result = await database["usuarios"].delete_one({"_id": ObjectId(user_id)})
+        if result.deleted_count == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado"
+            )
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ID inválido"
+        )
