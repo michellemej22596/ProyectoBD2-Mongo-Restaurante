@@ -1,5 +1,5 @@
 # app/models/restaurant.py
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, validator
 from bson import ObjectId
 from typing import Optional
 
@@ -12,13 +12,16 @@ class RestaurantBase(BaseModel):
     menu: Optional[list] = []
     reseñas: Optional[list] = []
 
-    # Validador para ObjectId
+    # Validar el id solo cuando sea necesario
     @validator('id', pre=True, always=True)
     def validate_id(cls, v):
         # Si es un ObjectId, convertirlo a string
         if isinstance(v, ObjectId):
             return str(v)
         return v
+
+    class Config:
+        arbitrary_types_allowed = True  # Permitir tipos arbitrarios como ObjectId
 
 # Modelo para interactuar con MongoDB
 class RestaurantInDB(RestaurantBase):
