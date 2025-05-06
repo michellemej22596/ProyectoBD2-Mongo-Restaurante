@@ -4,4 +4,4 @@ from app.controllers.restaurant_controller import router as restaurant_router
 
 router = APIRouter()
 
-router.include_router(restaurant_router, prefix="/api/restaurantes", tags=["restaurantes"])
+router.include_router(restaurant_router)

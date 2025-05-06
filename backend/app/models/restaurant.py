@@ -1,40 +1,30 @@
-# app/models/restaurant.py
-from pydantic import BaseModel, validator
+from typing import List, Optional, Union
+from pydantic import BaseModel, Field, validator
 from bson import ObjectId
-from typing import Optional
 
-# Modelo base para un restaurante
 class RestaurantBase(BaseModel):
     nombre: str
     direccion: str
     telefono: str
     categoria: str
-    menu: Optional[list] = []
-    reseñas: Optional[list] = []
+    menu: List[str] = Field(default_factory=list)
+    resenas: List[str] = Field(default_factory=list)
+    location: List[float] = Field(..., min_items=2, max_items=2)
 
-    # Validar el id solo cuando sea necesario
-    @validator('id', pre=True, always=True)
-    def validate_id(cls, v):
-        # Si es un ObjectId, convertirlo a string
-        if isinstance(v, ObjectId):
-            return str(v)
-        return v
-
-    class Config:
-        arbitrary_types_allowed = True  # Permitir tipos arbitrarios como ObjectId
-
-# Modelo para interactuar con MongoDB
-class RestaurantInDB(RestaurantBase):
-    id: ObjectId
-
-    class Config:
-        orm_mode = True
-        arbitrary_types_allowed = True  # Permitir tipos arbitrarios como ObjectId
-
-# Para crear un restaurante
 class RestaurantCreate(RestaurantBase):
     pass
 
-# Para responder con los detalles de un restaurante
 class RestaurantResponse(RestaurantBase):
-    id: str  # Ahora el id será un string, ya que lo convertimos al validarlo
+    id: Union[int, str] = Field(alias="_id")  # Accepts both numeric and string IDs
+
+    class Config:
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+
+    @validator('id', pre=True)
+    def validate_id(cls, v):
+        # Convert ObjectId to string if it's an ObjectId
+        if isinstance(v, ObjectId):
+            return str(v)
+        # Otherwise keep as is (could be int or str)
+        return v

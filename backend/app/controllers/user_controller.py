@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from app.models.user import UserCreate, UserResponse, PyObjectId
+from typing import List, Optional, Union
 from app.config import database
 from bson import ObjectId
 
