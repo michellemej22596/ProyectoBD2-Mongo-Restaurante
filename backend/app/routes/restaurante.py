@@ -58,12 +58,13 @@ async def get_restaurantes_cercanos(lat: float, lng: float):
             "$geoNear": {
                 "near": {"type": "Point", "coordinates": [lng, lat]},
                 "distanceField": "distancia",
-                "spherical": True,
-                "limit": 5
+                "spherical": True
             }
-        }
+        },
+        { "$limit": 5 }  # <-- ESTE ES EL CAMBIO NUEVO
     ])
     restaurantes = []
     async for doc in cursor:
         restaurantes.append(restaurante_serializer(doc))
     return restaurantes
+
