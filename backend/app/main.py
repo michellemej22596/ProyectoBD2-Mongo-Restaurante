@@ -1,33 +1,35 @@
-# app/main.py
+# main.py
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.config import mongodb
-from app.routes import user_routes, restaurant_routes  # Add other routes as needed
+import asyncio
+from app.database import mongodb
+from app.routes import restaurante  # Puedes añadir mas rutas luego como usuario, orden, etc.
 
 app = FastAPI(
-    title="Restaurant API",
-    description="API para el sistema de gestión de restaurantes",
+    title="API Proyecto 2 - Gestión de Restaurantes",
+    description="API para gestión de pedidos y reseñas de restaurantes",
     version="1.0.0"
 )
 
-# Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Cambiar en producción
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Incluir routers
+app.include_router(restaurante.router, prefix="/restaurantes", tags=["Restaurantes"])
+
+# Evento que se ejecuta al iniciar la app para verificar conexión y crear índices
 @app.on_event("startup")
 async def startup_db_client():
-    if not await mongodb.verify_connection():
-        raise RuntimeError("Failed to connect to MongoDB")
+    is_connected = await mongodb.verify_connection()
+    if not is_connected:
+        raise Exception("No se pudo conectar a MongoDB Atlas.")
 
-# Registrar rutas
-app.include_router(user_routes.router, prefix="/api", tags=["Usuarios"])
-app.include_router(restaurant_routes.router, prefix="/api", tags=["Restaurantes"])
-
-@app.get("/", tags=["Root"])
+@app.get("/")
 async def root():
-    return {"message": "Bienvenido a la API de Restaurantes"}
+    return {"message": "API Proyecto 2 - OK"}
