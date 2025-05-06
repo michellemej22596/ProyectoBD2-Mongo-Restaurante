@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 from app.database import mongodb
-from app.routes import restaurante, usuario # Puedes añadir mas rutas luego como usuario, orden, etc.
+from app.routes import restaurante, usuario, menu, resena, orden
 
 app = FastAPI(
     title="API Proyecto 2 - Gestión de Restaurantes",
@@ -23,6 +23,7 @@ app.add_middleware(
 # Incluir routers
 app.include_router(restaurante.router, prefix="/restaurantes", tags=["Restaurantes"])
 app.include_router(usuario.router, prefix="/usuarios", tags=["Usuarios"])
+app.include_router(menu.router, prefix="/menu", tags=["Menu"])
 
 # Evento que se ejecuta al iniciar la app para verificar conexión y crear índices
 @app.on_event("startup")
