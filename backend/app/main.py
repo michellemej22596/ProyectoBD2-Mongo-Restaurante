@@ -1,7 +1,8 @@
+# app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import mongodb
-from app.routes import user_routes  # Add other routes as needed
+from app.routes import user_routes, restaurant_routes  # Add other routes as needed
 
 app = FastAPI(
     title="Restaurant API",
@@ -25,7 +26,7 @@ async def startup_db_client():
 
 # Registrar rutas
 app.include_router(user_routes.router, prefix="/api", tags=["Usuarios"])
-# Add other routes here...
+app.include_router(restaurant_routes.router, prefix="/api", tags=["Restaurantes"])
 
 @app.get("/", tags=["Root"])
 async def root():
