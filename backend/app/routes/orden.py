@@ -15,9 +15,9 @@ def orden_serializer(doc):
     return doc
 
 @router.get("/", response_model=List[OrdenOut])
-async def get_ordenes():
-    ordenes = await ordenes_collection.find().to_list(100)
-    return [orden_serializer(o) for o in ordenes]
+async def get_ordenes(skip: int = 0, limit: int = 10):
+    ordenes = await ordenes_collection.find().sort("fecha", -1).skip(skip).limit(limit).to_list(limit)
+    return ordenes
 
 @router.get("/{orden_id}", response_model=OrdenOut)
 async def get_orden(orden_id: str):

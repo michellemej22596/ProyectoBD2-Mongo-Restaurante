@@ -71,3 +71,25 @@ async def delete_resena(resena_id: str):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Reseña no encontrada")
     return {"message": "Reseña eliminada correctamente"}
+
+@router.get("/count")
+async def count_resenas():
+    counts = await resenas_collection.aggregate([
+        {"$group": {"_id": "$restaurante_nombre", "total_resenas": {"$sum": 1}}},
+        {"$sort": {"total_resenas": -1}}
+    ]).to_list(100)
+    return counts
+
+@router.get("/top")
+async def top_restaurantes():
+    ranking = await resenas_collection.aggregate([
+        {"$group": {
+            "_id": "$restaurante_nombre",
+            "promedio_calificacion": {"$avg": "$calificacion"},
+            "total_resenas": {"$sum": 1}
+        }},
+        {"$sort": {"promedio_calificacion": -1, "total_resenas": -1}},
+        {"$limit": 10}
+    ]).to_list(10)
+
+    return ranking
