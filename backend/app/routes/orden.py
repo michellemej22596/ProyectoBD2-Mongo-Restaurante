@@ -8,18 +8,20 @@ router = APIRouter()
 
 ordenes_collection = mongodb.get_db()["Ordenes"]
 
+
 def orden_serializer(doc):
     doc["_id"] = str(doc["_id"])
-    doc["items"] = [
-        {
+
+    items = []
+    for item in doc.get("items", []):
+        items.append({
             "nombre": item.get("nombre", ""),
             "descripcion": item.get("descripcion", ""),
             "precio": item.get("precio", 0),
-            "cantidad": item.get("cantidad", 0),
-            "platillo_id": item.get("platillo_id")
-        }
-        for item in doc.get("items", [])
-    ]
+            "cantidad": item.get("cantidad", 0)
+        })
+
+    doc["items"] = items
     return doc
 
 
@@ -55,6 +57,12 @@ async def get_ordenes_usuario(usuario_id: str):
         query = {"usuario_id": int(usuario_id)}
 
     ordenes = await ordenes_collection.find(query).to_list(100)
+    return [orden_serializer(o) for o in ordenes]
+
+
+@router.get("/restaurante/{restaurante_id}", response_model=List[OrdenOut])
+async def get_ordenes_restaurante(restaurante_id: str):
+    ordenes = await ordenes_collection.find({"restaurante_id": restaurante_id}).sort("fecha", -1).to_list(100)
     return [orden_serializer(o) for o in ordenes]
 
 @router.post("/", response_model=OrdenOut)
