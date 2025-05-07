@@ -14,6 +14,28 @@ def resena_serializer(doc):
         platillo.pop("platillo_id", None)
     return doc
 
+@router.get("/count")
+async def count_resenas():
+    counts = await resenas_collection.aggregate([
+        {"$group": {"_id": "$restaurante_nombre", "total_resenas": {"$sum": 1}}},
+        {"$sort": {"total_resenas": -1}}
+    ]).to_list(100)
+    return counts
+
+@router.get("/top")
+async def top_restaurantes():
+    ranking = await resenas_collection.aggregate([
+        {"$group": {
+            "_id": "$restaurante_nombre",
+            "promedio_calificacion": {"$avg": "$calificacion"},
+            "total_resenas": {"$sum": 1}
+        }},
+        {"$sort": {"promedio_calificacion": -1, "total_resenas": -1}},
+        {"$limit": 10}
+    ]).to_list(10)
+
+    return ranking
+
 @router.get("/", response_model=List[ResenaOut])
 async def get_resenas():
     resenas = await resenas_collection.find().to_list(100)
@@ -38,28 +60,6 @@ async def create_resena(resena: ResenaIn):
     res = await resenas_collection.insert_one(resena.dict())
     new_resena = await resenas_collection.find_one({"_id": res.inserted_id})
     return resena_serializer(new_resena)
-
-@router.get("/count")
-async def count_resenas():
-    counts = await resenas_collection.aggregate([
-        {"$group": {"_id": "$restaurante_nombre", "total_resenas": {"$sum": 1}}},
-        {"$sort": {"total_resenas": -1}}
-    ]).to_list(100)
-    return counts
-
-@router.get("/top")
-async def top_restaurantes():
-    ranking = await resenas_collection.aggregate([
-        {"$group": {
-            "_id": "$restaurante_nombre",
-            "promedio_calificacion": {"$avg": "$calificacion"},
-            "total_resenas": {"$sum": 1}
-        }},
-        {"$sort": {"promedio_calificacion": -1, "total_resenas": -1}},
-        {"$limit": 10}
-    ]).to_list(10)
-
-    return ranking
 
 @router.put("/{resena_id}", response_model=ResenaOut)
 async def update_resena(resena_id: str, resena: ResenaUpdate):
