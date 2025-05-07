@@ -8,7 +8,6 @@ from typing import List
 
 router = APIRouter()
 
-# Usar la colección correcta (Restaurantes con R mayúscula)
 restaurantes_collection = mongodb.get_db()["Restaurantes"]
 
 def restaurante_serializer(doc):
@@ -61,7 +60,7 @@ async def get_restaurantes_cercanos(lat: float, lng: float):
                 "spherical": True
             }
         },
-        { "$limit": 5 }  # <-- ESTE ES EL CAMBIO NUEVO
+        { "$limit": 5 }
     ])
     restaurantes = []
     async for doc in cursor:
