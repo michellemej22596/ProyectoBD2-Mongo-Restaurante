@@ -24,6 +24,8 @@ app.add_middleware(
 app.include_router(restaurante.router, prefix="/restaurantes", tags=["Restaurantes"])
 app.include_router(usuario.router, prefix="/usuarios", tags=["Usuarios"])
 app.include_router(menu.router, prefix="/menu", tags=["Menu"])
+app.include_router(orden.router, prefix="/ordenes", tags=["Ordenes"])
+app.include_router(resena.router, prefix="/resenas", tags=["Reseñas"])
 
 # Evento que se ejecuta al iniciar la app para verificar conexión y crear índices
 @app.on_event("startup")
