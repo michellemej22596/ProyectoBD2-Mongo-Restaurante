@@ -46,6 +46,10 @@ async function addLocationFieldAndCreateIndexes() {
     await restaurantesCollection.createIndex({ direccion: "text" });  // Índice de texto para dirección
     console.log("Índice de texto creado en 'direccion' de Restaurantes");
 
+    // Crear un índice compuesto para restaurante_id y precio (mejorar búsquedas combinadas)
+    await restaurantesCollection.createIndex({ "restaurante_id": 1, "precio": -1 });
+    console.log("Índice compuesto creado en 'restaurante_id' y 'precio' de Restaurantes");
+
     // Crear índices para la colección Menu
     const menuCollection = db.collection('Menu');
     await menuCollection.createIndex({ restaurante_id: 1 });  // Índice para buscar por restaurante_id
@@ -54,8 +58,9 @@ async function addLocationFieldAndCreateIndexes() {
     await menuCollection.createIndex({ precio: -1 });  // Índice para buscar por precio
     console.log("Índice creado en 'precio' de Menu");
 
-    await menuCollection.createIndex({ "platillos.restaurante_id": 1 });  // Índice multikey
-    console.log("Índice multikey creado en 'platillos.restaurante_id' de Menu");
+    // Crear un índice multikey para platillos.precio
+    await menuCollection.createIndex({ "platillos.precio": 1 });  // Índice para precios dentro del array platillos
+    console.log("Índice multikey creado en 'platillos.precio' de Menu");
 
     // Crear índices para la colección Ordenes
     const ordenesCollection = db.collection('Ordenes');
