@@ -1,5 +1,4 @@
 # routes/resena.py
-
 from fastapi import APIRouter, HTTPException
 from app.models.resena import ResenaIn, ResenaOut, ResenaUpdate
 from app.database import mongodb
@@ -7,11 +6,12 @@ from bson import ObjectId, errors
 from typing import List
 
 router = APIRouter()
-
 resenas_collection = mongodb.get_db()["Reseñas"]
 
 def resena_serializer(doc):
     doc["_id"] = str(doc["_id"])
+    for platillo in doc.get("platillos", []):
+        platillo.pop("platillo_id", None)
     return doc
 
 @router.get("/", response_model=List[ResenaOut])
@@ -21,6 +21,7 @@ async def get_resenas():
 
 @router.get("/{resena_id}", response_model=ResenaOut)
 async def get_resena(resena_id: str):
+    query = {}
     try:
         oid = ObjectId(resena_id)
         query = {"_id": oid}
@@ -30,7 +31,6 @@ async def get_resena(resena_id: str):
     resena = await resenas_collection.find_one(query)
     if not resena:
         raise HTTPException(status_code=404, detail="Reseña no encontrada")
-
     return resena_serializer(resena)
 
 @router.post("/", response_model=ResenaOut)
@@ -41,6 +41,7 @@ async def create_resena(resena: ResenaIn):
 
 @router.put("/{resena_id}", response_model=ResenaOut)
 async def update_resena(resena_id: str, resena: ResenaUpdate):
+    query = {}
     try:
         oid = ObjectId(resena_id)
         query = {"_id": oid}
@@ -59,6 +60,7 @@ async def update_resena(resena_id: str, resena: ResenaUpdate):
 
 @router.delete("/{resena_id}")
 async def delete_resena(resena_id: str):
+    query = {}
     try:
         oid = ObjectId(resena_id)
         query = {"_id": oid}
@@ -68,5 +70,4 @@ async def delete_resena(resena_id: str):
     result = await resenas_collection.delete_one(query)
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Reseña no encontrada")
-
     return {"message": "Reseña eliminada correctamente"}
