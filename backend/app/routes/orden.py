@@ -10,24 +10,25 @@ ordenes_collection = mongodb.get_db()["Ordenes"]
 
 def orden_serializer(doc):
     doc["_id"] = str(doc["_id"])
-
-    items = []
-    for item in doc.get("items", []):
-        items.append({
+    doc["items"] = [
+        {
             "nombre": item.get("nombre", ""),
             "descripcion": item.get("descripcion", ""),
             "precio": item.get("precio", 0),
-            "cantidad": item.get("cantidad", 0)
-        })
-
-    doc["items"] = items
+            "cantidad": item.get("cantidad", 0),
+            "platillo_id": item.get("platillo_id")
+        }
+        for item in doc.get("items", [])
+    ]
     return doc
+
 
 
 @router.get("/", response_model=List[OrdenOut])
 async def get_ordenes(skip: int = 0, limit: int = 10):
     ordenes = await ordenes_collection.find().sort("fecha", -1).skip(skip).limit(limit).to_list(limit)
-    return ordenes
+    return [orden_serializer(o) for o in ordenes]
+
 
 @router.get("/{orden_id}", response_model=OrdenOut)
 async def get_orden(orden_id: str):
