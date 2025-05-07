@@ -11,8 +11,7 @@ ordenes_collection = mongodb.get_db()["Ordenes"]
 def orden_serializer(doc):
     doc["_id"] = str(doc["_id"])
     for item in doc.get("items", []):
-        if "platillo_id" not in item:
-            item["platillo_id"] = "desconocido"
+        item.pop("platillo_id", None)  # Eliminar si existe
     return doc
 
 @router.get("/", response_model=List[OrdenOut])
@@ -23,7 +22,6 @@ async def get_ordenes():
 @router.get("/{orden_id}", response_model=OrdenOut)
 async def get_orden(orden_id: str):
     query = {}
-
     try:
         oid = ObjectId(orden_id)
         query = {"_id": oid}
@@ -39,7 +37,6 @@ async def get_orden(orden_id: str):
 @router.get("/usuario/{usuario_id}", response_model=List[OrdenOut])
 async def get_ordenes_usuario(usuario_id: str):
     query = {}
-
     try:
         oid = ObjectId(usuario_id)
         query = {"usuario_id": oid}
@@ -58,7 +55,6 @@ async def create_orden(orden: OrdenIn):
 @router.put("/{orden_id}", response_model=OrdenOut)
 async def update_orden(orden_id: str, orden: OrdenUpdate):
     query = {}
-
     try:
         oid = ObjectId(orden_id)
         query = {"_id": oid}
@@ -78,7 +74,6 @@ async def update_orden(orden_id: str, orden: OrdenUpdate):
 @router.patch("/{orden_id}/estado")
 async def cambiar_estado_orden(orden_id: str, estado: str):
     query = {}
-
     try:
         oid = ObjectId(orden_id)
         query = {"_id": oid}
@@ -98,7 +93,6 @@ async def cambiar_estado_orden(orden_id: str, estado: str):
 @router.delete("/{orden_id}")
 async def delete_orden(orden_id: str):
     query = {}
-
     try:
         oid = ObjectId(orden_id)
         query = {"_id": oid}

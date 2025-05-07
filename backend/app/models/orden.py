@@ -2,14 +2,16 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 
-class OrdenItem(BaseModel):
-    platillo_id: str
-    cantidad: int
+class Item(BaseModel):
+    nombre: str
+    descripcion: str
     precio: float
+    cantidad: int
+    platillo_id: Optional[str] = None  # opcional
 
 class OrdenIn(BaseModel):
     usuario_id: str
-    items: List[OrdenItem]
+    items: List[Item]
     total: float
     estado: str
     fecha: datetime
@@ -18,6 +20,6 @@ class OrdenOut(OrdenIn):
     id: str = Field(..., alias="_id")
 
 class OrdenUpdate(BaseModel):
-    items: Optional[List[OrdenItem]] = None
-    total: Optional[float] = None
-    estado: Optional[str] = None
+    items: Optional[List[Item]]
+    total: Optional[float]
+    estado: Optional[str]
