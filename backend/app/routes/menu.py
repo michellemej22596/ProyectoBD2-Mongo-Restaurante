@@ -72,3 +72,23 @@ async def delete_platillo(platillo_id: str):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Platillo no encontrado")
     return {"message": "Platillo eliminado correctamente"}
+
+# BULK INSERT
+@router.post("/bulk")
+async def bulk_create_platillos(platillos: List[PlatilloIn]):
+    docs = [p.dict() for p in platillos]
+    result = await menu_collection.insert_many(docs)
+    new_platillos = await menu_collection.find({"_id": {"$in": result.inserted_ids}}).to_list(len(result.inserted_ids))
+    return [platillo_serializer(p) for p in new_platillos]
+
+# BULK UPDATE precios (incrementar porcentaje)
+@router.patch("/actualizar-precios")
+async def bulk_update_prices(incremento: float):
+    result = await menu_collection.update_many({}, {"$mul": {"precio": 1 + incremento}})
+    return {"message": f"{result.modified_count} platillos actualizados."}
+
+# BULK DELETE por restaurante_id
+@router.delete("/eliminar-por-restaurante/{restaurante_id}")
+async def bulk_delete_por_restaurante(restaurante_id: str):
+    result = await menu_collection.delete_many({"restaurante_id": restaurante_id})
+    return {"message": f"{result.deleted_count} platillos eliminados."}

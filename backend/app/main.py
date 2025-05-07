@@ -14,7 +14,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Cambiar en producción
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,7 +27,7 @@ app.include_router(menu.router, prefix="/menu", tags=["Menu"])
 app.include_router(orden.router, prefix="/ordenes", tags=["Ordenes"])
 app.include_router(resena.router, prefix="/resenas", tags=["Reseñas"])
 
-# Evento que se ejecuta al iniciar la app para verificar conexión y crear índices
+# Evento que se ejecuta al iniciar la app para verificar conexión
 @app.on_event("startup")
 async def startup_db_client():
     is_connected = await mongodb.verify_connection()
