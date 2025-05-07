@@ -10,6 +10,9 @@ ordenes_collection = mongodb.get_db()["Ordenes"]
 
 def orden_serializer(doc):
     doc["_id"] = str(doc["_id"])
+    for item in doc.get("items", []):
+        if "platillo_id" not in item:
+            item["platillo_id"] = "desconocido"
     return doc
 
 @router.get("/", response_model=List[OrdenOut])
