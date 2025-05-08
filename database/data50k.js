@@ -1,8 +1,5 @@
-const faker = require('faker');
 const { MongoClient } = require('mongodb');
-
-// Configurar el idioma de Faker a español
-faker.locale = "es";  // Establecer el idioma a español
+const faker = require('faker');
 
 // Conexión a la base de datos MongoDB
 const uri = 'mongodb+srv://silvia:silvia@cluster0.a67fb.mongodb.net/Proyecto2?retryWrites=true&w=majority';
@@ -20,7 +17,7 @@ async function populateDatabase() {
     const menuCollection = db.collection('Menu');
     const ordenesCollection = db.collection('Ordenes');
     const reseñasCollection = db.collection('Reseñas');
-    const usuariosCollection = db.collection('Usuarios');  
+    const usuariosCollection = db.collection('Usuarios');
 
     let restauranteId = 1;  // Empezamos el ID de restaurante desde 1
     let usuarioId = 1;      // Empezamos el ID de usuario desde 1
@@ -30,6 +27,7 @@ async function populateDatabase() {
 
     for (let i = 1; i <= 50000; i++) {
       console.log(`Creando restaurante ${i}...`);
+      
       // Crear un restaurante con un ID manual y el campo location
       const restaurante = {
         _id: restauranteId,  // Asignamos el ID manual
@@ -45,9 +43,10 @@ async function populateDatabase() {
         reseñas: []  // Se llenará con las reseñas
       };
 
-      // Insertar restaurante en la colección
-      await restaurantesCollection.insertOne(restaurante);
-      console.log(`Restaurante insertado con ID: ${restauranteId}`);
+      // Crear un array de operaciones de bulk para los restaurantes
+      const bulkOps = [
+        { insertOne: { document: restaurante } }
+      ];
 
       // Crear 9 platillos para este restaurante con precios limitados a 150
       const menu = [];
@@ -61,74 +60,58 @@ async function populateDatabase() {
         });
       }
 
-      // Insertar platillos en la colección de menú
-      await menuCollection.insertMany(menu);
-      console.log(`9 platillos insertados para restaurante ID: ${restauranteId}`);
+      // Crear las operaciones de inserción para los platillos
+      menu.forEach(platillo => {
+        bulkOps.push({ insertOne: { document: platillo } });
+      });
 
-      // Crear un usuario de ejemplo con un ID manual
+      // Crear un usuario de ejemplo
       const usuario = {
-        _id: usuarioId++, // Asignamos el ID manual
+        _id: usuarioId++, 
         nombre: faker.name.findName(),
         email: faker.internet.email(),
         telefono: faker.phone.phoneNumber(),
         direccion: faker.address.streetAddress()
       };
 
-      // Insertar usuario en la colección de usuarios
-      const usuarioInsertado = await usuariosCollection.insertOne(usuario);
-      console.log(`Usuario insertado con ID: ${usuarioId - 1}`);  // Restamos 1 ya que incrementamos antes de insertar
+      // Agregar la operación de inserción del usuario al bulkOps
+      bulkOps.push({ insertOne: { document: usuario } });
 
-      // Crear una orden de ejemplo con los platillos embebidos
+      // Crear una orden de ejemplo
       const orden = {
-        _id: ordenId++,  // Asignamos el ID manual
-        usuario_id: usuarioId - 1,  // Asociamos la orden al usuario creado
+        _id: ordenId++,  
+        usuario_id: usuarioId - 1,
         items: [
-          { 
-            nombre: menu[0].nombre, 
-            descripcion: menu[0].descripcion, 
-            precio: menu[0].precio, 
-            cantidad: 2 
-          },
-          { 
-            nombre: menu[1].nombre, 
-            descripcion: menu[1].descripcion, 
-            precio: menu[1].precio, 
-            cantidad: 1 
-          }
+          { nombre: menu[0].nombre, descripcion: menu[0].descripcion, precio: menu[0].precio, cantidad: 2 },
+          { nombre: menu[1].nombre, descripcion: menu[1].descripcion, precio: menu[1].precio, cantidad: 1 }
         ],
-        total: (menu[0].precio * 2) + (menu[1].precio * 1), // Calculamos el total con los precios de los platillos
+        total: (menu[0].precio * 2) + (menu[1].precio * 1),
         estado: "pendiente",
         fecha: new Date()
       };
 
-      // Insertar la orden en la colección de órdenes
-      await ordenesCollection.insertOne(orden);
-      console.log(`Orden insertada con ID: ${ordenId - 1}`);
+      // Agregar la operación de inserción de la orden
+      bulkOps.push({ insertOne: { document: orden } });
 
-      // Crear una reseña de ejemplo con los platillos embebidos
+      // Crear una reseña de ejemplo
       const reseña = {
-        _id: reseñaId++,  // Asignamos el ID manual
-        usuario_nombre: usuario.nombre,  // Asociamos el nombre del usuario en vez de el ID
-        restaurante_nombre: restaurante.nombre,  // Asociamos el nombre del restaurante en vez del ID
-        platillos: [  // Los platillos ahora están embebidos
-          {
-            nombre: menu[0].nombre,
-            descripcion: menu[0].descripcion,
-            precio: menu[0].precio
-          },
-          {
-            nombre: menu[1].nombre,
-            descripcion: menu[1].descripcion,
-            precio: menu[1].precio
-          }
+        _id: reseñaId++,  
+        usuario_nombre: usuario.nombre,  
+        restaurante_nombre: restaurante.nombre,  
+        platillos: [
+          { nombre: menu[0].nombre, descripcion: menu[0].descripcion, precio: menu[0].precio },
+          { nombre: menu[1].nombre, descripcion: menu[1].descripcion, precio: menu[1].precio }
         ],
         calificacion: faker.datatype.number({ min: 1, max: 5 }),
         comentario: faker.lorem.sentence()
       };
 
-      // Insertar la reseña en la colección de reseñas
-      await reseñasCollection.insertOne(reseña);
-      console.log(`Reseña insertada con ID: ${reseñaId - 1}`);
+      // Agregar la operación de inserción de la reseña
+      bulkOps.push({ insertOne: { document: reseña } });
+
+      // Ejecutar el bulkWrite para insertar todos los documentos de una sola vez
+      await restaurantesCollection.bulkWrite(bulkOps);
+      console.log(`Documentos insertados en lote para restaurante ID: ${restauranteId}`);
 
       // Incrementar el ID de restaurante para el siguiente ciclo
       restauranteId++;
