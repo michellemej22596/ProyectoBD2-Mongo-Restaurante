@@ -14,16 +14,17 @@ const Menu = () => {
         const response = await api.get('https://proyectobd2-mongo-restaurante.onrender.com/menu/', {
           params: {
             skip: 0,
-            limit: 100,
+            limit: 10,
             precio_min: 0,
-            precio_max: 10000
+            precio_max: 10000,
+            sort: { createdAt: -1 } // Ordena por el campo 'createdAt' de forma descendente (más reciente primero)
           }
         });
 
         console.log('Respuesta de la API:', response.data); 
-
+        
         if (Array.isArray(response.data)) {
-          setMenuItems(response.data); 
+          setMenuItems(response.data);  
         } else {
           setError('La respuesta de la API no es un arreglo');
         }
@@ -47,9 +48,10 @@ const Menu = () => {
         </div>
 
         <div className='menu-container grid'>
+          {/* Verificamos si hay error o si no hay items */}
           {error && <p>{error}</p>}
           {menuItems.length === 0 && !error ? (
-            <p>No items available</p>
+            <p>No items available</p>  // Mensaje si no hay elementos
           ) : (
             menuItems.map(item => (
               <MenuItem 

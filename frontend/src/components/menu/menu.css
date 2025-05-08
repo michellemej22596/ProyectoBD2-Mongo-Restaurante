@@ -84,4 +84,22 @@
     margin-block: 1rem 0.25rem;
 }
 
-
+.menu-item input {
+    display: block;
+    margin-bottom: 0.5rem;
+    width: 100%;
+    padding: 0.4rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+  }
+  
+  .menu-item button {
+    background-color: var(--first-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    margin-left: 10 px;
+  }
+  
