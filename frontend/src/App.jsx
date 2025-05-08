@@ -7,7 +7,6 @@ import Gallery from '@components/gallery/Gallery.jsx'
 import Header from '@components/header/header.jsx'
 import Home from '@components/home/Home.jsx'
 import Menu from '@components/menu/Menu.jsx'
-import Reservation from '@components/reservation/Reservation.jsx'
 import Testimonials from '@components/testimonials/Testimonials.jsx'
 
 

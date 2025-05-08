@@ -21,6 +21,7 @@ import testimonialImg1 from './assets/testimonial-1.jpg';
 import testimonialImg2 from './assets/testimonial-2.jpg';
 import testimonialImg3 from './assets/testimonial-3.jpg';
 import testimonialImg4 from './assets/testimonial-4.jpg';
+ */
 
 import menuImg1 from './assets/menu-1.jpg';
 import menuImg2 from './assets/menu-2.jpg';
@@ -30,8 +31,8 @@ import menuImg5 from './assets/menu-5.jpg';
 import menuImg6 from './assets/menu-6.jpg';
 import menuImg7 from './assets/menu-7.jpg';
 import menuImg8 from './assets/menu-8.jpg';
-
-*/
+import menuImg9 from './assets/menu-9.jpg';
+import menuImg10 from './assets/menu-10.jpg';
 
 export const navLinks = ['Inicio', 'Menú', 'Ordenes', 'Restaurantes', 'Usuarios'];
 
@@ -143,7 +144,7 @@ export const testimonialItem = [
     stars: 4.4,
   },
 ];
-
+*/
 export const menu = [
   {
     id: 1,
@@ -152,8 +153,6 @@ export const menu = [
     title: 'Roasted Beef',
     description: 'It is long established of fact that reader will distracted.',
     price: 50.25,
-    reviews: 1600,
-    stars: 5,
   },
 
   {
@@ -163,8 +162,6 @@ export const menu = [
     title: 'Chicken Bread',
     description: 'It is long established of fact that reader will distracted.',
     price: 29.65,
-    reviews: 1500,
-    stars: 4.9,
   },
 
   {
@@ -174,8 +171,6 @@ export const menu = [
     title: 'Roasted Steak',
     description: 'It is long established of fact that reader will distracted.',
     price: 60.35,
-    reviews: 1800,
-    stars: 4.5,
   },
 
   {
@@ -185,8 +180,6 @@ export const menu = [
     title: 'Fish Steak',
     description: 'It is long established of fact that reader will distracted.',
     price: 40.79,
-    reviews: 1300,
-    stars: 4.8,
   },
 
   {
@@ -196,8 +189,6 @@ export const menu = [
     title: 'Vegetable Salad',
     description: 'It is long established of fact that reader will distracted.',
     price: 25.49,
-    reviews: 1700,
-    stars: 4.4,
   },
 
   {
@@ -207,8 +198,6 @@ export const menu = [
     title: 'Daily Fastfood',
     description: 'It is long established of fact that reader will distracted.',
     price: 45.19,
-    reviews: 1900,
-    stars: 4.5,
   },
 
   {
@@ -218,8 +207,6 @@ export const menu = [
     title: 'Fresh Seafood',
     description: 'It is long established of fact that reader will distracted.',
     price: 69.25,
-    reviews: 1400,
-    stars: 4.4,
   },
 
   {
@@ -229,10 +216,26 @@ export const menu = [
     title: 'Chocolate Shake',
     description: 'It is long established of fact that reader will distracted.',
     price: 35.62,
-    reviews: 1200,
-    stars: 5.0,
+  },
+
+  {
+    id: 9,
+    img: menuImg9,
+    category: 'Dessert',
+    title: 'Chocolate Shake',
+    description: 'It is long established of fact that reader will distracted.',
+    price: 35.62,
+  },
+
+  {
+    id: 10,
+    img: menuImg10,
+    category: 'Dessert',
+    title: 'Chocolate Shake',
+    description: 'It is long established of fact that reader will distracted.',
+    price: 35.62,
   },
 ];
-
+/**
 export const footerLinks = ['about', 'menu', 'testimonials'];
  */

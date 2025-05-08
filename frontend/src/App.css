@@ -12,9 +12,9 @@
   --tittle-color: hsl(var(--hue), 4%, 26%);
   --text-color: hsl(var(--hue), 4%, 38%);
   --body-color: hsl(var(--hue), 4%, 99%);
-  --container-color: hsl(var(--hue), 4%, 26%);
+  --container-color: hsl(36, 91%, 89%);
   --border-color: hsl(var(--hue), 4%, 91%);
-  --white-color: hsl(271, 4%, 100%);
+  --white-color: hsl(var(--hue), 4%, 100%);
 
 
 
